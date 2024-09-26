@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "历史清理",
+  "version": "1.1",  // 更新版本号为1.1
+  "description": "对自定义添加的网址进行定时和手动两种方式的历史浏览记录的清理，并具备锁定和用密码打开的功能。",
+  "default_locale": "zh_CN",
+  "permissions": [
+    "history",
+    "storage",
+    "alarms",
+    "downloads"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

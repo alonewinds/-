@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"> <!-- 确保使用UTF-8编码 -->
+  <title>历史清理</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 设置字体 */
+      background-color: rgb(51, 51, 51); /* 设置背景颜色 */
+      color: white; /* 设置文字颜色为白色，以便在深色背景上可见 */
+      margin: 0; /* 设置外边距为0 */
+      padding: 0; /* 设置内边距为0 */
+      display: flex; /* 设置为弹性布局 */
+      justify-content: center; /* 设置主轴对齐方式为居中 */
+      align-items: flex-start; /* 设置交叉轴对齐方式为顶部对齐 */
+      height: 100vh; /* 设置高度为视口高度 */
+      width: 400px; /* 设置固定宽度 */
+    }
+    .container, .logs-container {
+      padding: 10px; /* 缩小内边距 */
+      background-color: #333;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 500px;
+      min-width: 300px; /* 设置最小宽度 */
+    }
+    .lock-screen {
+      padding: 10px; /* 缩小内边距 */
+      background-color: #333;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 500px;
+      min-width: 300px; /* 设置最小宽度 */
+      height: 90px; /* 设置固定高度 */
+      display: none; /* 初始隐藏 */
+    }
+    .input-group {
+      margin-bottom: 1px; /* 进一步缩小行距 */
+      position: relative; /* 确保箭头符号相对于输入框定位 */
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .input-group input, .input-group select, .input-group button {
+      width: 100%;
+      padding: 8px; /* 缩小内边距 */
+      border: none;
+      border-radius: 4px;
+      margin-bottom: 5px; /* 缩小行距 */
+      box-sizing: border-box;
+      background-color: rgb(68, 68, 68); /* 设置背景颜色 */
+      color: white; /* 设置文字颜色 */
+      text-align: center; /* 使数值居中显示 */
+    }
+    .input-group button {
+      background-color: rgb(68, 68, 68); /* 设置按钮背景颜色 */
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .input-group button:hover {
+      background-color: rgb(85, 85, 85); /* 设置按钮悬停背景颜色 */
+    }
+    .lock-screen div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .lock-screen label {
+      margin-bottom: 5px;
+    }
+    .lock-screen input,
+    .lock-screen button {
+      margin-bottom: 10px;
+    }
+    .url-list {
+      margin-top: 2px; /* 缩小上边距 */
+      max-height: 200px; /* 设置最大高度 */
+      overflow-y: auto; /* 添加垂直滚动条 */
+      overflow-x: auto; /* 添加水平滚动条 */
+      white-space: nowrap; /* 防止换行 */
+      border: 1px solid #555; /* 添加边框以便更容易看到列表区域 */
+      padding: 5px;
+      background-color: rgb(68, 68, 68); /* 设置水平滚动条背景颜色 */
+    }
+    .item {
+      display: block;
+      white-space: nowrap;
+      clear: both;
+      float: left;
+    }
+    .item .link {
+      text-decoration: none;
+      position: relative;
+      padding: 0 0 0 18px;
+    }
+    .item .favicon {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 16px;
+      width: 16px;
+    }
+    .item .title {
+      overflow: hidden;
+      padding: 0 0 1px 3px;
+      color: white !important; /* 将颜色改为白色 */
+    }
+    .item .title:hover {
+      text-decoration: underline;
+    }
+    .item .url {
+      display: block;
+      font-size: x-small;
+      color: #888;
+      padding-left: 18px;
+    }
+    .item .url:hover {
+      text-decoration: underline; /* 鼠标悬停时添加下划线 */
+    }
+    .url-item .site-name {
+      font-size: 0.8em; /* 缩小字体 */
+      color: #bbb; /* 淡化颜色 */
+      margin-right: 10px; /* 添加右边距 */
+    }
+    .url-item input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    .small-text {
+      font-size: 0.8em; /* 设置小号字体 */
+    }
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px; /* 增加标题和网址输入框之间的行间距 */
+    }
+    .main-title {
+      font-size: 1.5em; /* 设置更大的字体大小 */
+      font-weight: bold; /* 加粗字体 */
+      margin: 0; /* 移除默认边距 */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lock-icon {
+      cursor: pointer;
+      width: 24px;
+      height: 24px;
+    }
+    .url-item .delete-url {
+      color: red; /* 将删除按钮（X符号）的颜色设置为红色 */
+      cursor: pointer; /* 将鼠标悬停时的光标改为手型 */
+      font-weight: bold; /* 加粗字体 */
+      margin-left: 10px; /* 添加左边距，使其与网址有一定间隔 */
+    }
+    #clearResult {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #444;
+      border-radius: 4px;
+      text-align: center;
+      display: none; /* 初始隐藏 */
+    }
+    /* 自定义滚动条样式 */
+    .url-list::-webkit-scrollbar {
+      height: 12px; /* 设置水平滚动条的高度 */
+    }
+    .url-list::-webkit-scrollbar-track {
+      background: rgb(68, 68, 68); /* 设置滚动条背景颜色 */
+    }
+    .url-list::-webkit-scrollbar-thumb {
+      background-color: rgb(41, 41, 41); /* 设置滚动条颜色 */
+      border-radius: 10px; /* 设置滚动条圆角 */
+    }
+    .arrow-icon {
+      cursor: pointer;
+      font-size: 2em;
+      font-weight: bold; /* 加粗箭头符号 */
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+    }
+    .url-count {
+      font-size: 0.8em; /* 设置小号字体 */
+      color: #bbb; /* 设置颜色 */
+      text-align: left; /* 左对齐 */
+      margin-bottom: 2px; /* 缩小下边距 */
+    }
+    .large-text {
+      font-size: 1.2em; /* 设置大号字体 */
+    }
+    .input-group-spacing {
+      margin-bottom: 6px; /* 增加输入框之间的行间距 */
+    }
+  </style>
+</head>
+<body>
+  <div id="mainContainer" class="container">
+    <div class="title-bar">
+      <h1 class="main-title">历史清理</h1> <!-- 使用新的 main-title 类 -->
+      <img src="icons/lock-icon.png" id="lockIcon" class="lock-icon" title="锁定"> <!-- 添加锁定图标 -->
+    </div>
+    <div class="input-group">
+      <input type="text" id="url" placeholder="输入网址" autocomplete="off"> <!-- 添加autocomplete="off" -->
+    </div>
+    <div class="input-group">
+      <label for="clearRange">清理时间范围</label> <!-- 取消符号"：" -->
+      <select id="clearRange">
+        <option value="hour">最近1小时</option>
+        <option value="day">最近24小时</option>
+        <option value="week">最近7天</option>
+        <option value="all">全部历史</option>
+      </select>
+    </div>
+    <div class="input-group input-group-spacing">
+      <label for="globalInterval">清理间隔(分钟)</label> <!-- 修改文字并取消符号"：" -->
+      <input type="number" id="globalInterval" placeholder="输入间隔时间">
+    </div>
+    <div class="input-group">
+      <button id="manualClear">手动点击清理</button>
+    </div>
+    <div id="urlCount" class="url-count">网址数量: 0</div> <!-- 添加网址数量显示 -->
+    <div id="clearResult"></div> <!-- 添加清理结果显示区域 -->
+    <div class="url-list" id="urlList"></div> <!-- 添加网址列表显示区域 -->
+    <div class="input-group bottom-row small-text">
+      <button id="exportSettings">导出设置</button>
+      <button id="importSettings">导入设置</button>
+      <button id="viewLogs">查看日志</button>
+    </div>
+    <div class="input-group input-group-spacing">
+      <label for="lockTimeInput">锁屏时间（分钟）</label>
+      <input type="number" id="lockTimeInput" min="1" />
+    </div>
+  </div>
+  
+  <div id="logsContainer" class="logs-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #333; z-index: 10;">
+    <h2><span class="large-text">清理日志</span> - 共清理<span id="totalClearedCount"></span>条</h2>
+    <div id="logs"></div>
+    <button id="clearLogs">清空日志</button>
+    <button id="closeLogs">关闭日志</button>
+  </div>
+  
+  <div class="lock-screen" id="lockScreen">
+    <h1>请输入密码</h1>
+    <div class="input-group">
+      <input type="password" id="unlockPassword" placeholder="输入密码">
+      <span class="arrow-icon" id="unlockArrow">&#x2192;</span> <!-- 添加向右箭头符号 -->
+    </div>
+    <div class="input-group">
+      <button id="changePassword">修改密码</button>
+      <button id="forgotPassword">忘记密码</button>
+    </div>
+  </div>
+  
+  <audio id="clearSound" src="clear_sound.mp3"></audio>
+  <script src="popup.js"></script>
+</body>
+</html>
